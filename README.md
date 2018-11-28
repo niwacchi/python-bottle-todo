@@ -1,7 +1,7 @@
 # Python+Bottle TodoApp
 ## middleware
-- Pyton 3.7.x
-- Bottle x.x
+- Pyton 3.7.1
+- Bottle 0.12.14
 - SQLAlchemy x.x
 - SQLite3 x.x
 
