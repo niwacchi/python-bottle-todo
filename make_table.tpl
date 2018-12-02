@@ -8,4 +8,3 @@
   </tr>
 %end
 </table>
-
