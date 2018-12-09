@@ -1,15 +1,32 @@
 import sqlite3
 from bottle import route, run, debug, template, request, static_file, error
+from sqlalchemy import create_engine, Column, Integer, String, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
+ 
+engine = create_engine('sqlite:///todo.db', echo=True)
+Base = declarative_base()
 
+class Todo(Base):
+    __tablename__ = 'todo'
+    id = Column(Integer, primary_key=True)
+    task = Column(String(100))
+    status = Column(Boolean)
+
+    def __repr__(self):
+        return "<Todo(id='%s', task='%s', score='%s')>" % (self.id, self.task, self.status)
+
+Base.metadata.create_all(engine)
 
 @route('/todo')
 @route('/my_todo_list')
 def todo_list():
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
-    result = c.fetchall()
-    c.close()
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    result = session.query(Todo.id, Todo.task).filter(Todo.status=='1').all()
+
     return template('make_table', rows=result)
 
 
@@ -17,16 +34,16 @@ def todo_list():
 def new_item():
     if request.GET.save:
         new = request.GET.task.strip()
-        conn = sqlite3.connect('todo.db')
-        c = conn.cursor()
 
-        c.execute("INSERT INTO todo (task, status) VALUES (?, ?)", (new, 1))
-        new_id = c.lastrowid
+        t = Todo(task=new,status=1)
 
-        conn.commit()
-        c.close()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        session.add(t)
+        session.flush()
+        session.commit()
 
-        return '<p>The new task was inserted into the database, the ID is %s</>' % new_id
+        return '<p>The new task was inserted into the database, the ID is %s</>' % t.id
     else:
         return template('new_task.tpl')
 
@@ -42,11 +59,13 @@ def edit_item(no):
         else:
             status = 0
 
-        conn = sqlite3.connect('todo.db')
-        c = conn.cursor()
-        c.execute(
-            "UPDATE todo SET task = ?, status = ? WHERE id LIKE ?", (edit, status, no))
-        conn.commit()
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        t = session.query(Todo).filter_by(id=no).one()
+        t.task = edit
+        t.status = status
+        session.add(t)
+        session.commit()
 
         return '<p>The item number %s was successfully updated</p>' % no
     else:

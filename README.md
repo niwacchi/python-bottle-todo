@@ -2,8 +2,8 @@
 ## middleware
 - Pyton 3.7.1
 - Bottle 0.12.14
-- SQLAlchemy x.x
-- SQLite3 x.x
+- SQLAlchemy 1.2.14
+- SQLite3 3.24.0
 
 ## Spec
 ### Database
