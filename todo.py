@@ -27,7 +27,7 @@ def todo_list():
     session = Session()
     result = session.query(Todo.id, Todo.task).filter(Todo.status=='1').all()
 
-    return template('make_table', rows=result)
+    return template('templates/make_table', rows=result)
 
 
 @route('/new', method='GET')
@@ -45,7 +45,7 @@ def new_item():
 
         return '<p>The new task was inserted into the database, the ID is %s</>' % t.id
     else:
-        return template('new_task.tpl')
+        return template('templates/new_task.tpl')
 
 
 @route('/edit/<no:int>', method='GET')
@@ -74,7 +74,7 @@ def edit_item(no):
         c.execute("SELECT task FROM todo WHERE id LIKE ?", (str(no),))
         cur_data = c.fetchone()
 
-        return template('edit_task', old=cur_data, no=no)
+        return template('templates/edit_task', old=cur_data, no=no)
 
 
 @route('/item<item:re:[0-9]+>')
