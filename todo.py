@@ -1,5 +1,5 @@
 import sqlite3
-from bottle import route, run, debug, template, request, static_file, error
+from bottle import route, run, debug, template, request, static_file, error, redirect
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -7,6 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
  
 engine = create_engine('sqlite:///todo.db', echo=True)
 Base = declarative_base()
+Base.metadata.create_all(engine)
 
 class Todo(Base):
     __tablename__ = 'todo'
@@ -17,7 +18,32 @@ class Todo(Base):
     def __repr__(self):
         return "<Todo(id='%s', task='%s', score='%s')>" % (self.id, self.task, self.status)
 
-Base.metadata.create_all(engine)
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(100))
+    password = Column(String(100))
+
+@route('/')
+def index():
+    return template("templates/index")
+
+@route('/login')
+def login():
+    return template("templates/login")
+
+@route('/login', method="POST")
+def do_login():
+    username = request.forms.get("username")
+    password = request.forms.get("password")
+    
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    result = session.query(User).filter(User.username==username).filter(User.password==password)
+
+    if(result.count() > 0):
+        redirect('/todo')
+
 
 @route('/todo')
 @route('/my_todo_list')
@@ -28,7 +54,6 @@ def todo_list():
     result = session.query(Todo.id, Todo.task).filter(Todo.status=='1').all()
 
     return template('templates/make_table', rows=result)
-
 
 @route('/new', method='GET')
 def new_item():

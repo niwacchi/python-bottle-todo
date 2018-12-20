@@ -5,5 +5,7 @@ conn.execute("INSERT INTO todo (task,status) VALUES ('Read A-byte-of-python to g
 conn.execute("INSERT INTO todo (task,status) VALUES ('Visit the Python website',1)")
 conn.execute("INSERT INTO todo (task,status) VALUES ('Test various editors for and check the syntax highlighting',1)")
 conn.execute("INSERT INTO todo (task,status) VALUES ('Choose your favorite WSGI-Framework',0)")
+conn.execute("CREATE TABLE user ( id INTEGER PRIMARY KEY, username char(100) NOT NULL, password char(100) NOT NULL )")
+conn.execute("INSERT INTO user ( username, password ) VALUES ('test01', 'pass01')")
 conn.commit()
 
