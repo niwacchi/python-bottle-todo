@@ -1,5 +1,5 @@
 import sqlite3
-from bottle import route, run, debug, template, request, static_file, error, redirect
+from bottle import route, run, debug, template, request, static_file, error, redirect, static_file
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
